@@ -13,6 +13,14 @@ wifi:
   ssid: !secret esp_wifi_ssid
   password: !secret esp_wifi_password
 
+  # Optional manual IP
+  manual_ip:
+    static_ip: 192.168.0.21
+    gateway: 192.168.0.254
+    subnet: 255.255.255.0
+    dns1: 192.168.0.1
+  domain: .vanzanten.local
+
 # Enable logging.
 logger:
 
@@ -123,3 +131,4 @@ binary_sensor:
     on_release:
       # On release, turn of the chime.
       - switch.turn_off: relay
+
