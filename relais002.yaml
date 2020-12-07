@@ -79,35 +79,15 @@ switch:
   - platform: restart
     name: ${upper_devicename} Restart
 
-  # Switch to turn on/off the chime.
   - platform: gpio
     id: relay
     inverted: true
     name: ${upper_devicename} relaisstate
     pin: GPIO0
+    on_turn_on:
+      - delay: 500ms
+      - switch.turn_off: relay
 
-  # Switch to turn on/off chime when
-  # doorbell button is pushed.
-  #
-  # It creates a "virtual" switch based
-  # on a global variable.
-  - platform: template
-    name: ${upper_devicename} Relais Active
-    id: relais_active
-    restore_state: false
-    turn_on_action:
-      - globals.set:
-          id: relaisstate
-          value: 'true'
-    turn_off_action:
-      - globals.set:
-          id: relaisstate
-          value: 'false'
-    lambda: |-
-      return id(relaisstate);
-
-# Binary sensor representing the
-# Doorbell button push.
 binary_sensor:
   - platform: gpio
     id: button
@@ -117,18 +97,13 @@ binary_sensor:
       number: GPIO2
       mode: INPUT_PULLUP
       inverted: true
-    filters:
-      # Small filter, to debounce the button press.
-      - delayed_on: 25ms
-      - delayed_off: 25ms
     on_press:
       # Only turn on the chime when it is active.
-      then:
-        if:
-          condition:
-            - switch.is_on: relais_active
-          then:
-            - switch.turn_on: relay
+      - switch.turn_on: relay
+      - delay: 500ms
+      - switch.turn_off: relay
     on_release:
       # On release, turn of the chime.
       - switch.turn_off: relay
+
+
